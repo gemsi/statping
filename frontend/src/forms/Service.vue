@@ -3,13 +3,13 @@
         <div class="card contain-card mb-4">
             <div class="card-header">{{ $t('service.info') }}</div>
             <div class="card-body">
-        <div class="form-group row">
-            <label class="col-sm-4 col-form-label">{{ $t('service.name') }}</label>
-            <div class="col-sm-8">
-                <input v-model="service.name" @input="updatePermalink" id="name" type="text" name="name" class="form-control" placeholder="Server Name" required spellcheck="false" autocorrect="off">
-                <small class="form-text text-muted">Give your service a name you can recognize</small>
+            <div class="form-group row">
+                <label class="col-sm-4 col-form-label">{{ $t('service.name') }}</label>
+                <div class="col-sm-8">
+                    <input v-model="service.name" @input="updatePermalink" id="name" type="text" name="name" class="form-control" placeholder="Server Name" required spellcheck="false" autocorrect="off">
+                    <small class="form-text text-muted">Give your service a name you can recognize</small>
+                </div>
             </div>
-        </div>
         <div class="form-group row">
             <label for="service_type" class="col-sm-4 col-form-label">{{ $t('service.type') }}</label>
             <div class="col-sm-8">
@@ -44,7 +44,7 @@
 
             <div class="form-group row">
                 <label class="col-sm-4 col-form-label">Public Service</label>
-                <div class="col-8 mt-1">
+                <div class="col-12 col-md-8 mt-1 mb-2">
                     <span @click="service.public = !!service.public" class="switch float-left">
                         <input v-model="service.public" type="checkbox" name="public-option" class="switch" id="switch-public" v-bind:checked="service.public">
                         <label v-if="service.public" for="switch-public">This service will be visible for everyone</label>
@@ -61,7 +61,7 @@
                     <small id="interval" class="form-text text-muted">Interval to check your service state</small>
                 </div>
                 <div class="col-sm-2">
-                    <input v-model="service.check_interval" type="text" name="check_interval" class="form-control">
+                    <input v-model="service.check_interval" type="number" name="check_interval" class="form-control">
                 </div>
             </div>
 
@@ -73,9 +73,11 @@
             <div class="card-body">
 
             <div class="form-group row">
-                <label for="service_url" class="col-sm-4 col-form-label">Service Endpoint {{service.type === 'http' ? "(URL)" : "(Domain)"}}</label>
+                <label for="service_url" class="col-sm-4 col-form-label">
+                  Service Endpoint {{service.type === 'http' ? "(URL)" : "(Domain)"}}
+                </label>
                 <div class="col-sm-8">
-                    <input v-model="service.domain" type="text" class="form-control" id="service_url" :placeholder="service.type === 'http' ? 'https://google.com' : '192.168.1.1'" required autocapitalize="none" spellcheck="false">
+                    <input v-model="service.domain" type="url" class="form-control" id="service_url" :placeholder="service.type === 'http' ? 'https://google.com' : '192.168.1.1'" required autocapitalize="none" spellcheck="false">
                     <small class="form-text text-muted">Statping will attempt to connect to this address</small>
                 </div>
             </div>
@@ -110,7 +112,7 @@
             </div>
 
             <div class="col-sm-2">
-                <input v-model="service.timeout" type="text" name="service_timeout" class="form-control">
+                <input v-model="service.timeout" type="number" name="service_timeout" class="form-control">
             </div>
 
         </div>
@@ -145,8 +147,8 @@
         </div>
 
         <div v-if="service.type.match(/^(http)$/)" class="form-group row">
-            <label class="col-sm-4 col-form-label">Follow HTTP Redirects</label>
-            <div class="col-8 mt-1">
+            <label class="col-12 col-md-4 col-form-label">Follow HTTP Redirects</label>
+            <div class="col-12 col-md-8 mt-1 mb-2 mb-md-0">
                 <span @click="service.redirect = !!service.redirect" class="switch float-left">
                     <input v-model="service.redirect" type="checkbox" name="redirect-option" class="switch" id="switch-redirect" v-bind:checked="service.redirect">
                     <label for="switch-redirect">Follow HTTP Redirects if server attempts</label>
@@ -155,8 +157,8 @@
         </div>
 
         <div v-if="service.type.match(/^(http)$/)" class="form-group row">
-            <label class="col-sm-4 col-form-label">Verify SSL</label>
-            <div class="col-8 mt-1">
+            <label class="col-12 col-md-4 col-form-label">Verify SSL</label>
+            <div class="col-12 col-md-8 mt-1 mb-2 mb-md-0">
                 <span @click="service.verify_ssl = !!service.verify_ssl" class="switch float-left">
                     <input v-model="service.verify_ssl" type="checkbox" name="verify_ssl-option" class="switch" id="switch-verify-ssl" v-bind:checked="service.verify_ssl">
                     <label for="switch-verify-ssl" v-if="service.verify_ssl">Verify SSL Certificate for this service</label>
@@ -166,8 +168,8 @@
         </div>
 
         <div v-if="service.type.match(/^(tcp|http)$/)" class="form-group row">
-            <label class="col-sm-4 col-form-label">Use TLS Certificate</label>
-            <div class="col-8 mt-1">
+            <label class="col-12 col-md-4 col-form-label">Use TLS Certificate</label>
+            <div class="col-12 col-md-8 mt-1 mb-2 mb-md-0">
                 <span @click="use_tls = !!use_tls" class="switch float-left">
                     <input v-model="use_tls" type="checkbox" name="verify_ssl-option" class="switch" id="switch-use-tls" v-bind:checked="use_tls">
                     <label for="switch-use-tls" v-if="use_tls">Custom TLS Certificates for mTLS services</label>
@@ -209,7 +211,7 @@
 
                 <div class="form-group row">
                     <label class="col-sm-4 col-form-label">Enable Notifications</label>
-                    <div class="col-8 mt-1">
+                    <div class="col-12 col-md-8 mt-1 mb-2 mb-md-0">
                         <span @click="service.allow_notifications = !!service.allow_notifications" class="switch float-left">
                             <input v-model="service.allow_notifications" type="checkbox" name="allow_notifications-option" class="switch" id="switch-notifications" v-bind:checked="service.allow_notifications">
                             <label for="switch-notifications">Allow notifications to be sent for this service</label>
@@ -226,7 +228,7 @@
                 </div>
                 <div v-if="service.allow_notifications" class="form-group row">
                     <label class="col-sm-4 col-form-label">Notify All Changes</label>
-                    <div class="col-8 mt-1">
+                    <div class="col-12 col-md-8 mt-1">
                         <span @click="service.notify_all_changes = !!service.notify_all_changes" class="switch float-left">
                             <input v-model="service.notify_all_changes" type="checkbox" name="notify_all-option" class="switch" id="notify_all" v-bind:checked="service.notify_all_changes">
                             <label v-if="service.notify_all_changes" for="notify_all">Continuously send notifications when service is failing.</label>

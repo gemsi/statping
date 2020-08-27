@@ -101,7 +101,7 @@ func apiServicePatchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !req.Online {
-		services.RecordFailure(service, issueDefault)
+		services.RecordFailure(service, issueDefault, "trigger")
 	} else {
 		services.RecordSuccess(service)
 	}
@@ -237,6 +237,19 @@ func apiServiceTimeDataHandler(w http.ResponseWriter, r *http.Request) {
 	returnJson(uptimeData, w, r)
 }
 
+func apiServiceHitsDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	service, err := findService(r)
+	if err != nil {
+		sendErrorJson(err, w, r)
+		return
+	}
+	if err := service.AllHits().DeleteAll(); err != nil {
+		sendErrorJson(err, w, r)
+		return
+	}
+	sendJsonAction(service, "delete", w, r)
+}
+
 func apiServiceDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	service, err := findService(r)
 	if err != nil {
@@ -269,8 +282,7 @@ func servicesDeleteFailuresHandler(w http.ResponseWriter, r *http.Request) {
 		sendErrorJson(err, w, r)
 		return
 	}
-	err = service.DeleteFailures()
-	if err != nil {
+	if err := service.AllFailures().DeleteAll(); err != nil {
 		sendErrorJson(err, w, r)
 		return
 	}

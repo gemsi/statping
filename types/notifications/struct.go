@@ -38,18 +38,35 @@ type Notification struct {
 	AuthorUrl   string          `gorm:"-" json:"author_url"`
 	Icon        string          `gorm:"-" json:"icon"`
 	Delay       time.Duration   `gorm:"-" json:"delay,string"`
-	Running     chan bool       `gorm:"-" json:"-"`
 
 	Form          []NotificationForm `gorm:"-" json:"form"`
-	lastSent      time.Time          `gorm:"-" json:"-"`
-	lastSentCount int                `gorm:"-" json:"-"`
+	LastSent      time.Time          `gorm:"-" json:"-"`
+	LastSentCount int                `gorm:"-" json:"-"`
+	Logs          []*NotificationLog `gorm:"-" json:"logs,omitempty"`
+}
+
+type NotificationLog struct {
+	Message   string    `gorm:"-" json:"message"`
+	Error     error     `gorm:"-" json:"error,omitempty"`
+	Success   bool      `gorm:"-" json:"success"`
+	Service   int64     `gorm:"-" json:"service"`
+	CreatedAt time.Time `gorm:"-" json:"created_at"`
 }
 
 func (n *Notification) Logger() *logrus.Logger {
 	return log.WithField("notifier", n.Method).Logger
 }
 
-type RunFunc func(interface{}) error
+type Values struct {
+	Host      string
+	Port      int64
+	Username  string
+	Password  string
+	Var1      string
+	Var2      string
+	ApiKey    string
+	ApiSecret string
+}
 
 // NotificationForm contains the HTML fields for each variable/input you want the notifier to accept.
 type NotificationForm struct {

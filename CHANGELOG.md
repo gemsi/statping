@@ -1,3 +1,41 @@
+# 0.90.65 (08-24-2020)
+- Fixed issue with dashboard not logging in (notifier panic)
+- Modified static email templates to github.com/statping/emails
+- Modified Regenerate API function to keep API_SECRET env
+
+# 0.90.64 (08-18-2020)
+- Modified max-width for container to 1012px, larger UI
+- Added failure sparklines in the Services list view
+- Added "Update Available" alert on the top of Settings if new version is available
+- Added Version and Github Commit hash to left navigation on Settings page
+- Added "reason" for failures (will be used for more custom notification messages) [regex, lookup, timeout, connection, close, status_code]
+- Added Help page that is generated from Statping's Wiki repo on build
+- Modified Service Group failures on index page to show 90 days of failures
+- Modified Service view page, updated Latency and Ping charts, added failures below
+- Modified Service chart on index page to show ping data along with latency
+- Added AWS SNS Notifier
+- Modified dashboard services UI
+- Modified service.Failures API to include 32 failures (max)
+
+# 0.90.63 (08-17-2020)
+- Modified build process to use xgo for all arch builds
+- Modified Statping's Push Notifications server notifier to match with Firebase/gorush params
+
+# 0.90.62 (08-07-2020)
+- Added Notification logs
+- Fixed issues with Notifer After (x) failures for notifications
+- Modified notifications to not send on initial startup
+- Updated Incident UI
+- Added additional testing for notifications
+- Modified SCSS/SASS files to be generated from 1, main.scss to main.css
+- Modified index page to use /assets directory for assets, (main.css, style.css)
+- Modified index page to use CDN asset paths
+- Fixed New Checkin form
+- Modified email notifier template to be rendered from MJML (using go generate)
+- Modified database relationships with services using gorm
+- Modified "statping env" command to show user/group ID
+- Removed "js" folder when exporting assets, js files are always version of release, not static JS files
+
 # 0.90.61 (07-22-2020)
 - Modified sass layouts, organized and split up sections
 - Modified Checkins to seconds rather than milliseconds (for cronjob)

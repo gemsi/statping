@@ -23,7 +23,6 @@ func TestMobileNotifier(t *testing.T) {
 	require.Nil(t, err)
 
 	t.Parallel()
-	t.SkipNow()
 
 	mobileToken = utils.Params.GetString("MOBILE_TOKEN")
 	if mobileToken == "" {
@@ -48,7 +47,7 @@ func TestMobileNotifier(t *testing.T) {
 		Add(Mobile)
 
 		assert.Equal(t, "Hunter Long", Mobile.Author)
-		assert.Equal(t, mobileToken, Mobile.Var1)
+		assert.Equal(t, mobileToken, Mobile.Var1.String)
 	})
 
 	t.Run("Mobile Notifier Tester", func(t *testing.T) {

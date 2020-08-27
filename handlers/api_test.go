@@ -32,7 +32,7 @@ func init() {
 	utils.InitLogs()
 	source.Assets()
 	dir = utils.Directory
-	core.New("test")
+	core.New("test", "testcommithere")
 }
 
 func TestFailedHTTPServer(t *testing.T) {
@@ -111,6 +111,9 @@ func TestSetupRoutes(t *testing.T) {
 			FuncTest: func(t *testing.T) error {
 				if !core.App.Setup {
 					return errors.New("core has not been setup")
+				}
+				if core.App.ApiSecret == "" {
+					return errors.New("API Key has not been set")
 				}
 				if len(services.AllInOrder()) == 0 {
 					return errors.New("no services where found")
@@ -201,12 +204,6 @@ func TestMainApiRoutes(t *testing.T) {
 				assert.Equal(t, "Updated Core", core.App.Name)
 				return nil
 			},
-		},
-		{
-			Name:           "404 Error Page",
-			URL:            "/api/missing_404_page",
-			Method:         "GET",
-			ExpectedStatus: 404,
 		},
 		{
 			Name:             "Health Check endpoint",

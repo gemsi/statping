@@ -80,6 +80,10 @@ func (w *webhooker) Select() *notifications.Notification {
 	return w.Notification
 }
 
+func (w *webhooker) Valid(values notifications.Values) error {
+	return nil
+}
+
 func (w *webhooker) sendHttpWebhook(body string) (*http.Response, error) {
 	utils.Log.Infoln(fmt.Sprintf("sending body: '%v' to %v as a %v request", body, w.Host.String, w.Var1.String))
 	client := new(http.Client)
@@ -106,7 +110,7 @@ func (w *webhooker) sendHttpWebhook(body string) (*http.Response, error) {
 		req.Header.Add("Content-Type", "application/json")
 	}
 	req.Header.Set("User-Agent", "Statping")
-	req.Header.Set("Statping-Version", utils.Version)
+	req.Header.Set("Statping-Version", utils.Params.GetString("VERSION"))
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
