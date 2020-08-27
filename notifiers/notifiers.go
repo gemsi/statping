@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+//go:generate go run generate.go
+
 var log = utils.Log.WithField("type", "notifier")
 
 type replacer struct {
@@ -33,6 +35,7 @@ func InitNotifiers() {
 		Pushover,
 		statpingMailer,
 		Gotify,
+		AmazonSNS,
 	)
 }
 

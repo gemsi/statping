@@ -1,9 +1,11 @@
 import Vue from "vue";
-const { startOfToday, startOfMonth, lastDayOfMonth, subSeconds, getUnixTime, fromUnixTime, differenceInSeconds, formatDistance, addMonths, isWithinInterval } = require('date-fns')
+const { startOfDay, startOfWeek, endOfMonth, startOfToday, startOfTomorrow, startOfYesterday, endOfYesterday, endOfTomorrow, endOfToday, endOfDay, startOfMonth, lastDayOfMonth, subSeconds, getUnixTime, fromUnixTime, differenceInSeconds, formatDistance, addMonths, addSeconds, isWithinInterval } = require('date-fns')
 import formatDistanceToNow from 'date-fns/formatDistanceToNow'
 import format from 'date-fns/format'
 import parseISO from 'date-fns/parseISO'
-import addSeconds from 'date-fns/addSeconds'
+import isBefore from 'date-fns/isBefore'
+import isAfter from 'date-fns/isAfter'
+import { roundToNearestMinutes } from 'date-fns'
 
 export default Vue.mixin({
   methods: {
@@ -19,9 +21,9 @@ export default Vue.mixin({
     startToday() {
       return startOfToday()
     },
-      secondsHumanize (val) {
-        return `${val} ${this.$t('second', val)}`
-      },
+    secondsHumanize(val) {
+      return `${val} ${this.$t('second', val)}`
+    },
     utc(val) {
       return new Date.UTC(val)
     },
@@ -29,28 +31,68 @@ export default Vue.mixin({
       return formatDistanceToNow(parseISO(t1))
     },
     daysInMonth(t1) {
-        return lastDayOfMonth(t1)
+      return lastDayOfMonth(t1)
     },
     nowSubtract(seconds) {
-      return subSeconds(new Date(), seconds)
+      return subSeconds(this.now(), seconds)
+    },
+    isAfter(date, compare) {
+      return isAfter(date, parseISO(compare))
+    },
+    isBefore(date, compare) {
+      return isBefore(date, parseISO(compare))
     },
     dur(t1, t2) {
       return formatDistance(t1, t2)
     },
-    format(val, type="EEEE, MMM do h:mma") {
+    format(val, type = "EEEE, MMM do h:mma") {
       return format(val, type)
     },
     niceDate(val) {
       return format(parseISO(val), "EEEE, MMM do h:mma")
     },
-      parseISO(v) {
-        return parseISO(v)
-      },
+    parseISO(v) {
+      return parseISO(v)
+    },
+    round(minutes) {
+      return roundToNearestMinutes(minutes)
+    },
+    endOf(method, val) {
+      switch (method) {
+        case "day":
+          return endOfDay(val)
+        case "today":
+          return endOfToday()
+        case "tomorrow":
+          return endOfTomorrow()
+        case "yesterday":
+          return endOfYesterday()
+        case "month":
+          return endOfMonth(val)
+      }
+      return roundToNearestMinutes(val)
+    },
+    beginningOf(method, val) {
+      switch (method) {
+        case "day":
+          return startOfDay(val)
+        case "today":
+          return startOfToday()
+        case "tomorrow":
+          return startOfTomorrow()
+        case "yesterday":
+          return startOfYesterday()
+        case "week":
+          return startOfWeek()
+        case "month":
+          return startOfMonth(val)
+      }
+      return roundToNearestMinutes(val)
+    },
     isZero(val) {
       return getUnixTime(parseISO(val)) <= 0
     },
     smallText(s) {
-      const incidents = s.incidents
       if (s.online) {
         return `Online, checked ${this.ago(s.last_success)} ago`
       } else {
@@ -62,6 +104,24 @@ export default Vue.mixin({
           return `Service has never been online`
         }
         return `Service has been offline for ${this.ago(s.last_success)}`
+      }
+    },
+    round_time(frame, val) {
+      switch(frame) {
+        case "15m":
+          return roundToNearestMinutes(val, {nearestTo: 60 * 15})
+        case "30m":
+          return roundToNearestMinutes(val, {nearestTo: 60 * 30})
+        case "1h":
+          return roundToNearestMinutes(val, {nearestTo: 3600})
+        case "3h":
+          return roundToNearestMinutes(val, {nearestTo: 3600 * 3})
+        case "6h":
+          return roundToNearestMinutes(val, {nearestTo: 3600 * 6})
+        case "12h":
+          return roundToNearestMinutes(val, {nearestTo: 3600 * 12})
+        case "24h":
+          return roundToNearestMinutes(val, {nearestTo: 3600 * 24})
       }
     },
     toUnix(val) {
@@ -84,14 +144,14 @@ export default Vue.mixin({
     },
     copy(txt) {
       this.$copyText(txt).then(function (e) {
-        alert('Copied: \n'+txt)
+        alert('Copied: \n' + txt)
       });
     },
     serviceLink(service) {
       if (service.permalink) {
-        service = this.$store.getters.serviceByPermalink(service.permalink)
+        service = this.$store.getters.serviceById(service.permalink)
       }
-      if (service===undefined || this.isEmptyObject(service)) {
+      if (service === undefined || this.isEmptyObject(service)) {
         return `/service/0`
       }
       let link = service.permalink ? service.permalink : service.id
@@ -105,10 +165,6 @@ export default Vue.mixin({
     },
     isAdmin() {
       return this.$store.state.admin
-    },
-    loggedIn() {
-      const core = this.$store.getters.core
-      return core.logged_in === true
     },
     iconName(name) {
       switch (name) {
@@ -151,7 +207,7 @@ export default Vue.mixin({
       })
       return newSet
     },
-    convertToChartData(data = [], multiplier=1, asInt=false) {
+    convertToChartData(data = [], multiplier = 1, asInt = false) {
       if (!data) {
         return {data: []}
       }
@@ -170,9 +226,15 @@ export default Vue.mixin({
     },
     humanTime(val) {
       if (val >= 1000) {
-          return Math.round(val / 1000) + " ms"
+        return Math.round(val / 1000) + " ms"
       }
-        return val + " μs"
+      return val + " μs"
+    },
+    humanTimeNum(val) {
+      if (val >= 1000) {
+        return Math.round(val / 1000)
+      }
+      return val
     },
     firstDayOfMonth(date) {
       return startOfMonth(date)
@@ -182,6 +244,9 @@ export default Vue.mixin({
     },
     addMonths(date, amount) {
       return addMonths(date, amount)
+    },
+    addSeconds(date, amount) {
+      return addSeconds(date, amount)
     }
   }
 });
